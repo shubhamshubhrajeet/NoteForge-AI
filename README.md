@@ -1,4 +1,4 @@
-# 🎓 College Notes VPS
+# 🎓 NoteForge-AI
 
 An AI-powered file management system for college notes, built on your own laptop as a VPS.
 

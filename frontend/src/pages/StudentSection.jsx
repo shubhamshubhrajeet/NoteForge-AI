@@ -319,11 +319,16 @@ function UnitRow({ unit, files }) {
 function SubjectAccordion({ subject, allFiles }) {
   const [open, setOpen] = useState(false);
   const units = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5"];
-  const subFiles = allFiles.filter(
-    (f) =>
-      f.subject &&
-      f.subject.toLowerCase().includes(subject.name.toLowerCase().slice(0, 10)),
-  );
+  const subFiles = allFiles.filter((f) => {
+    if (!f.subject) return false;
+    // Must match both subject name AND branch to keep files separate
+    const subMatch = f.subject
+      .toLowerCase()
+      .includes(subject.name.toLowerCase().slice(0, 10));
+    const branchMatch =
+      !f.branch || !subject.branch || f.branch === subject.branch;
+    return subMatch && branchMatch;
+  });
   return (
     <div className="border border-gray-800 rounded-xl overflow-hidden">
       <button
@@ -639,6 +644,7 @@ function AllNotesPage() {
       u = f.unit || "Unknown";
     if (!grouped[b]) grouped[b] = {};
     if (!grouped[b][s]) grouped[b][s] = {};
+    // Use subject name as key within its branch bucket — safe because branch is already the outer key
     if (!grouped[b][s][sub]) grouped[b][s][sub] = {};
     if (!grouped[b][s][sub][u]) grouped[b][s][sub][u] = [];
     grouped[b][s][sub][u].push(f);

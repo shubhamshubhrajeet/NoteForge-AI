@@ -41,12 +41,12 @@ function wordFuzzyScore(text, keyword) {
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter((w) => w.length >= 2);
+    .filter((w) => w.length >= 3);
   const keywordWords = keyword
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter((w) => w.length >= 2);
+    .filter((w) => w.length >= 3);
   if (keywordWords.length === 0) return 0;
 
   // Exact substring bonus
@@ -453,7 +453,13 @@ function parseText(text) {
       if (s > topScore) topScore = s;
     }
     console.log(`[PARSE] ${sub.name}: score=${topScore.toFixed(3)}`);
-    if (topScore > bestScore && topScore >= 0.65) {
+    // On tie, prefer the subject whose best-matching keyword is longer (more specific)
+    const isBetter =
+      topScore > bestScore ||
+      (topScore === bestScore &&
+        topScore >= 0.65 &&
+        sub.name.length > subject.length);
+    if (isBetter && topScore >= 0.65) {
       bestScore = topScore;
       subject = sub.name;
       code = sub.code;

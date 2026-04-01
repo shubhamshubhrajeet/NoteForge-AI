@@ -57,8 +57,9 @@ function UnitBar({ count, unit }) {
   );
 }
 
-function SubjectRow({ sub, fileCounts }) {
+function SubjectRow({ sub, fileCounts, branch }) {
   const [open, setOpen] = useState(false);
+  // Use branch-scoped key to keep same-named subjects separate across branches
   const subCount = fileCounts[sub.code] || {};
   const total = Object.values(subCount).reduce((a, b) => a + b, 0);
 
@@ -204,11 +205,12 @@ export default function Dashboard({ onNavigate }) {
       .then((r) => {
         const counts = {};
         for (const f of r.data.files || []) {
-          const code = f.course_code || "";
+          const branch = f.branch || "";
+          const subject = f.subject || "";
           const unit = f.unit || "Unknown";
-          // Try to match by subject name if no code
-          const subjectKey = code || f.subject || "";
-          if (!subjectKey) continue;
+          // Key = "BRANCH::SubjectName" — keeps same-named subjects in different branches fully separate
+          const subjectKey = `${branch}::${subject}`;
+          if (!branch || !subject) continue;
           if (!counts[subjectKey]) counts[subjectKey] = {};
           counts[subjectKey][unit] = (counts[subjectKey][unit] || 0) + 1;
         }
@@ -286,10 +288,11 @@ export default function Dashboard({ onNavigate }) {
               course={course}
               fileCounts={Object.fromEntries(
                 course.semesters.flatMap((s) =>
-                  s.subjects.map((sub) => [
-                    sub.code,
-                    fileCounts[sub.code] || fileCounts[sub.name] || {},
-                  ]),
+                  s.subjects.map((sub) => {
+                    // Look up by "BRANCH::subjectName" — same key used when counting
+                    const key = `${course.branch}::${sub.name}`;
+                    return [sub.code, fileCounts[key] || {}];
+                  }),
                 ),
               )}
               onNavigate={onNavigate}

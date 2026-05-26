@@ -13,7 +13,7 @@ An AI-powered file management system for college notes, built on your own laptop
 | Frontend | React + Vite + TailwindCSS |
 | Backend | Node.js + Express |
 | Database | SQLite (via better-sqlite3) |
-| AI | Anthropic Claude API |
+| AI | Google Gemini API |
 | Storage | Local filesystem (your external HDD) |
 
 ## Branches Supported
